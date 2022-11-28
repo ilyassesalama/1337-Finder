@@ -12,28 +12,20 @@ USER_NAME="Ilyasse Salama"
 
 # show banner
 init_banner() {
-	echo -e	"${RED}
-             ░░███╗░░██████╗░██████╗░███████╗
-             ░████║░░╚════██╗╚════██╗╚════██║
-             ██╔██║░░░█████╔╝░█████╔╝░░░░██╔╝
-             ╚═╝██║░░░╚═══██╗░╚═══██╗░░░██╔╝░
-             ███████╗██████╔╝██████╔╝░░██╔╝░░
-             ╚══════╝╚═════╝░╚═════╝░░░╚═╝░░░"
+	echo -e "${RED}
+	
+                    ▄█─ █▀▀█ █▀▀█ ▀▀▀█ 
+                    ─█─ ──▀▄ ──▀▄ ──█─ 
+                    ▄█▄ █▄▄█ █▄▄█ ─▐▌─ 
+
+            ░█▀▀▀ ▀█▀ ░█▄─░█ ░█▀▀▄ ░█▀▀▀ ░█▀▀█ 
+            ░█▀▀▀ ░█─ ░█░█░█ ░█─░█ ░█▀▀▀ ░█▄▄▀ 
+            ░█─── ▄█▄ ░█──▀█ ░█▄▄▀ ░█▄▄▄ ░█─░█"
 	
 	sleep 0.1
 
-	echo -e	"${NO_COLOR}
-       ███████╗██╗███╗░░██╗██████╗░███████╗██████╗░
-       ██╔════╝██║████╗░██║██╔══██╗██╔════╝██╔══██╗
-       █████╗░░██║██╔██╗██║██║░░██║█████╗░░██████╔╝
-       ██╔══╝░░██║██║╚████║██║░░██║██╔══╝░░██╔══██╗
-       ██║░░░░░██║██║░╚███║██████╔╝███████╗██║░░██║
-       ╚═╝░░░░░╚═╝╚═╝░░╚══╝╚═════╝░╚══════╝╚═╝░░╚═╝"
-
-	sleep 0.1
-
 	if [ "$IS_FIRST_TIME" = true ]; then
-		echo -e	" \n\n     Created mainly to help students get the info they\n    need about a missing student who will evaluate them." 
+		echo -e	"${NO_COLOR} \n\n     Created mainly to help students get the info they\n    need about a missing student who will evaluate them." 
 	fi
 	echo -e	"\n"
 	sleep 0.1
