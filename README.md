@@ -9,4 +9,4 @@ When you choose someone to evaluate your project, the intranet hides the student
 
 ### Contributions?
 
-I welcome contributions, the script task is simple but if you wish to improve the code then why not. I never had any experience in Bash before, so this is my first script ever.
+I welcome contributions, the script task is simple but if you wish to improve the code then why not. I never had any experience in Bash before, so yeah.
