@@ -9,6 +9,7 @@ GREEN='\033[0;32m'
 IS_FIRST_TIME=true
 USER_EXISTS=false
 USER_NAME="Ilyasse Salama"
+USER_FIRST_NAME="Ilyasse"
 
 # show banner
 init_banner() {
@@ -39,6 +40,7 @@ init_program() {
 	echo -en "${GREEN}> Enter the user login: ${NO_COLOR}"
 	read -a usr
 	USER_NAME=${usr}
+	USER_FIRST_NAME=$(ldapsearch uid=$USER_NAME | grep givenName | awk '{print $2}')
 
 	check_if_user_exists
 }
@@ -82,13 +84,13 @@ get_user_freeze_status(){
 	USER_INFO=$(ldapsearch uid=$USER_NAME | grep freezed)
 
 	if [[ "${USER_INFO}" == *"freezed"* ]] ;then
-		echo -e "╔═ ✅ This student has frozen his curcus."
+		echo -e "╔═ ✅ $USER_FIRST_NAME has frezeed his curcus."
 		echo -e "║"
 		echo -en "╚═ Reason of the freeze: "
 		FREEZE_REASON=$(ldapsearch uid=$USER_NAME | grep freezed | sed 's/close:/ /' | grep 'reason:' | sed 's/^.*: //')
 		echo -e $FREEZE_REASON
 	else
-		echo -e "❌ This student has not frozen his curcus."
+		echo -e "❌ $USER_FIRST_NAME has not frezeed his curcus."
 	fi
 	prompt_menu
 }
@@ -97,8 +99,14 @@ get_user_freeze_status(){
 prompt_user_menu(){
 	clear
 	init_banner
-	echo -e "${GREEN}Choose the information you need:${NO_COLOR}\n"
-	echo -e "1. Phone number.\n2. Full name.\n3. Check if the student is freezed.\n4. Search for another student."
+	echo -e "${GREEN}Choose the information you need:${NO_COLOR}"
+	echo -e "
+1. Phone number.
+2. Full name.
+3. Check if the student is freezed.
+4. Search for another student.
+5. About the script."
+
 	echo -en "${GREEN}\n> Select: ${NO_COLOR}"
 	read -a var
 	chosen_info=${var}
@@ -111,6 +119,8 @@ prompt_user_menu(){
 		get_user_freeze_status
 	elif [ $chosen_info -eq 4 ]; then
 		init_program
+	elif [ $chosen_info -eq 5 ]; then
+		prompt_about_screen
 	else
 		prompt_user_menu
 	fi
@@ -122,6 +132,15 @@ prompt_user_not_found(){
 	clear
 	init_banner
 	echo -e "${RED}❌ Student not found."
+	prompt_end_menu
+}
+
+prompt_about_screen(){
+	clear
+	init_banner
+	echo -e "${GREEN}About:${NO_COLOR}\n"
+	echo -e "The purpose of this program is to help students get the\ninformation they need about a missing student who will evaluate them."
+	echo -e "This program is open source and can be found on GitHub:\nhttps://github.com/ilyassessalama/1337-Finder"
 	prompt_end_menu
 }
 
