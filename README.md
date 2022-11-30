@@ -7,6 +7,14 @@ This tiny project was made to practice the basic stuff we've learned in Born2ber
 
 When you choose someone to evaluate your project, the intranet hides the student's phone number and you will not be able to see their phone number anymore to call them. So, the main issue this script solves is to get students' phone numbers with some perks such as check if the user is freezed or not or to get their full name.
 
+### How to run the script?
+
+Paste this command line in your terminal to run the script directly from the repository:
+
+```bash
+bash <(curl -s https://raw.githubusercontent.com/ilyassesalama/1337-Finder/main/userdata.sh)
+```
+
 ### Contributions?
 
 I welcome contributions, the script task is simple but if you wish to improve the code then why not. I never had any experience in Bash before, so yeah.
