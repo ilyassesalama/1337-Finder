@@ -12,7 +12,7 @@ When you choose someone to evaluate your project, the intranet hides the student
 Paste this command line in your terminal to run the script directly from the repository:
 
 ```bash
-bash <(curl -s https://raw.githubusercontent.com/ilyassesalama/1337-Finder/main/userdata.sh)
+bash <(curl -s https://raw.githubusercontent.com/ilyassesalama/1337-Finder/main/1337-Finder.sh)
 ```
 
 ### Contributions?
