@@ -4,6 +4,9 @@
 RED='\033[0;31m'
 NO_COLOR='\033[0m'
 GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
+BGREEN='\033[1;32m'
 
 # variables
 IS_FIRST_TIME=true
@@ -27,8 +30,10 @@ init_banner() {
 
 	if [ "$IS_FIRST_TIME" = true ]; then
 		echo -e	"${NO_COLOR} \n\n     Created mainly to help students get the info they\n    need about a missing student who will evaluate them." 
+		echo -e	"${PURPLE}                   Maintained by isalama${NO_COLOR}"
 	fi
-	echo -e	"\n"
+
+	echo -e "${NO_COLOR}\n════════════════════════════════════════════════════════════\n"
 	sleep 0.1
 }
 
@@ -61,8 +66,16 @@ check_if_user_exists() {
 get_user_phone(){
 	clear
 	init_banner
-	echo -en "${GREEN}The phone number of $USER_NAME: ${NO_COLOR}"
-	ldapsearch uid=$USER_NAME | grep mobile: | awk '{print $2}'
+	
+	PHONE_NUMBER=$(ldapsearch uid=$USER_NAME | grep mobile: | awk '{print $2}')
+
+	if [[ -z "$PHONE_NUMBER" ]]; then
+		echo -e "${RED}\n❌ We couldn't get the phone number of ${BGREEN}$USER_FIRST_NAME${RED} because they
+either didn't add it to their profile or an error has ocurred."
+	else
+		echo -en "${GREEN}The phone number of $USER_NAME: ${NO_COLOR}"
+		echo -e $PHONE_NUMBER
+	fi
 
 	prompt_menu
 }
@@ -101,11 +114,11 @@ prompt_user_menu(){
 	init_banner
 	echo -e "${GREEN}Choose the information you need:${NO_COLOR}"
 	echo -e "
-1. Phone number.
-2. Full name.
-3. Check if the student is freezed.
-4. Search for another student.
-5. About the script."
+1. Phone number
+2. Full name
+3. Check if the student is freezed
+4. Search for another student
+5. About the script"
 
 	echo -en "${GREEN}\n> Select: ${NO_COLOR}"
 	read -a var
@@ -145,7 +158,7 @@ prompt_about_screen(){
 }
 
 prompt_end_menu(){
-	echo -e "${GREEN}\nWhat do you want to do?${NO_COLOR}\n"
+	echo -e "${GREEN}\nWhat's next?${NO_COLOR}"
 	echo -e "1. Go back.\n2. Exit.\n"
 	echo -en "${GREEN}> Select: ${NO_COLOR}"
 
