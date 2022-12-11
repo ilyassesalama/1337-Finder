@@ -30,7 +30,7 @@ init_banner() {
 
 	if [ "$IS_FIRST_TIME" = true ]; then
 		echo -e	"${NO_COLOR} \n\n     Created mainly to help students get the info they\n    need about a missing student who will evaluate them." 
-		echo -e	"${PURPLE}                   Maintained by isalama${NO_COLOR}"
+		echo -e	"${PURPLE}               --- Maintained by isalama ---${NO_COLOR}"
 	fi
 
 	echo -e "${NO_COLOR}\n════════════════════════════════════════════════════════════\n"
@@ -117,8 +117,9 @@ prompt_user_menu(){
 1. Phone number
 2. Full name
 3. Check if the student is freezed
-4. Search for another student
-5. About the script"
+4. Open student's intra profile
+5. Search for another student
+6. About the script"
 
 	echo -en "${GREEN}\n> Select: ${NO_COLOR}"
 	read -a var
@@ -131,8 +132,10 @@ prompt_user_menu(){
 	elif [ $chosen_info -eq 3 ]; then
 		get_user_freeze_status
 	elif [ $chosen_info -eq 4 ]; then
-		init_program
+		open_intra_profile
 	elif [ $chosen_info -eq 5 ]; then
+		init_program
+	elif [ $chosen_info -eq 6 ]; then
 		prompt_about_screen
 	else
 		prompt_user_menu
@@ -173,6 +176,16 @@ prompt_end_menu(){
 			init_program
 		fi
 	fi
+}
+
+open_intra_profile(){
+	clear
+	init_banner
+	echo -en "Opening intra profile of $USER_NAME... "
+	sleep 0.3
+	open "https://profile.intra.42.fr/users/$USER_NAME"
+	echo -e "${GREEN}✓ Done${NO_COLOR}"
+	prompt_menu
 }
 
 init_program
