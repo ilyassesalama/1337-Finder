@@ -13,6 +13,7 @@ IS_FIRST_TIME=true
 USER_EXISTS=false
 USER_NAME="Ilyasse Salama"
 USER_FIRST_NAME="Ilyasse"
+USER_LOGIN="isalama"
 
 # show banner
 init_banner() {
@@ -44,14 +45,15 @@ init_program() {
 	IS_FIRST_TIME=false
 	echo -en "${GREEN}> Enter the user login: ${NO_COLOR}"
 	read -a usr
-	USER_NAME=${usr}
-	USER_FIRST_NAME=$(ldapsearch uid=$USER_NAME | grep givenName | awk '{print $2}')
+	USER_LOGIN=${usr}
+	USER_FIRST_NAME=$(ldapsearch uid=$USER_LOGIN | grep givenName | awk '{print $2}')
+	USER_NAME=$(ldapsearch uid=$USER_LOGIN | grep cn: | sed 's/cn:/ /' | xargs)
 
 	check_if_user_exists
 }
 
 check_if_user_exists() {
-	USER_INFO=$(ldapsearch uid=$USER_NAME | grep givenName)
+	USER_INFO=$(ldapsearch uid=$USER_LOGIN | grep givenName)
 	USER_INFO=$(awk '{print $1}' <<< $USER_INFO | tr -d '[:]')
 
 	if [ "$USER_INFO" = "givenName" ]; then
@@ -67,13 +69,13 @@ get_user_phone(){
 	clear
 	init_banner
 	
-	PHONE_NUMBER=$(ldapsearch uid=$USER_NAME | grep mobile: | awk '{print $2}')
+	PHONE_NUMBER=$(ldapsearch uid=$USER_LOGIN | grep mobile: | awk '{print $2}')
 
 	if [[ -z "$PHONE_NUMBER" ]]; then
 		echo -e "${RED}\n❌ We couldn't get the phone number of ${BGREEN}$USER_FIRST_NAME${RED} because they
 either didn't add it to their profile or an error has ocurred."
 	else
-		echo -en "${GREEN}The phone number of $USER_NAME: ${NO_COLOR}"
+		echo -en "${GREEN}The phone number of $USER_LOGIN: ${NO_COLOR}"
 		echo -e $PHONE_NUMBER
 	fi
 
@@ -83,24 +85,23 @@ either didn't add it to their profile or an error has ocurred."
 get_user_full_name(){
 	clear
 	init_banner
-	echo -en "${GREEN}The full name of $USER_NAME: ${NO_COLOR}"
-	FREEZE_REASON=$(ldapsearch uid=$USER_NAME | grep cn: | sed 's/cn:/ /')
-	echo -e $FREEZE_REASON
+	echo -en "${GREEN}The full name of $USER_LOGIN: ${NO_COLOR}"
+	echo -e $USER_NAME
 	prompt_menu
 }
 
 get_user_freeze_status(){
 	clear
 	init_banner
-	echo -e "${GREEN}The freeze status of $USER_NAME:${NO_COLOR}"
+	echo -e "${GREEN}The freeze status of $USER_LOGIN:${NO_COLOR}"
 
-	USER_INFO=$(ldapsearch uid=$USER_NAME | grep freezed)
+	USER_INFO=$(ldapsearch uid=$USER_LOGIN | grep freezed)
 
 	if [[ "${USER_INFO}" == *"freezed"* ]] ;then
 		echo -e "╔═ ✅ $USER_FIRST_NAME has frezeed his curcus."
 		echo -e "║"
 		echo -en "╚═ Reason of the freeze: "
-		FREEZE_REASON=$(ldapsearch uid=$USER_NAME | grep freezed | sed 's/close:/ /' | grep 'reason:' | sed 's/^.*: //')
+		FREEZE_REASON=$(ldapsearch uid=$USER_LOGIN | grep freezed | sed 's/close:/ /' | grep 'reason:' | sed 's/^.*: //')
 		echo -e $FREEZE_REASON
 	else
 		echo -e "❌ $USER_FIRST_NAME has not frezeed his curcus."
@@ -155,8 +156,8 @@ prompt_about_screen(){
 	clear
 	init_banner
 	echo -e "${GREEN}About:${NO_COLOR}\n"
-	echo -e "The purpose of this program is to help students get the\ninformation they need about a missing student who will evaluate them."
-	echo -e "This program is open source and can be found on GitHub:\nhttps://github.com/ilyassessalama/1337-Finder"
+	echo -e "The purpose of this script is to help students get the\ninformation they need about a missing student who will evaluate them."
+	echo -e "This script is open source and can be found on GitHub:\nhttps://github.com/ilyassesalama/1337-Finder"
 	prompt_end_menu
 }
 
@@ -181,9 +182,9 @@ prompt_end_menu(){
 open_intra_profile(){
 	clear
 	init_banner
-	echo -en "Opening intra profile of $USER_NAME... "
+	echo -en "Opening intra profile of ${PURPLE}$USER_NAME${NO_COLOR}... "
 	sleep 0.3
-	open "https://profile.intra.42.fr/users/$USER_NAME"
+	open "https://profile.intra.42.fr/users/$USER_LOGIN"
 	echo -e "${GREEN}✓ Done${NO_COLOR}"
 	prompt_menu
 }
