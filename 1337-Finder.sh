@@ -10,10 +10,22 @@ BGREEN='\033[1;32m'
 
 # variables
 IS_FIRST_TIME=true
+USAGE_COUNT=""
 USER_EXISTS=false
 USER_NAME="Ilyasse Salama"
 USER_FIRST_NAME="Ilyasse"
 USER_LOGIN="isalama"
+
+
+# get current usage
+init_usage(){
+	USAGE_COUNT=$(curl -s "https://visitor-badge.glitch.me/badge?page_id=1337-Finder" | sed -n 's/.*<text[^>]*>\([^<]*\)<.*/\1/p')
+	if [ -z "$USAGE_COUNT" ]; then
+		echo -e "${NO_COLOR}\n════════════════════════════════════════════════════════════\n"
+	else
+        echo -e "${NO_COLOR}\n═════════════ Total calls of the script: $USAGE_COUNT ═════════════════\n"
+    fi
+}
 
 # show banner
 init_banner() {
@@ -30,11 +42,13 @@ init_banner() {
 	sleep 0.1
 
 	if [ "$IS_FIRST_TIME" = true ]; then
-		echo -e	"${NO_COLOR} \n\n     Created mainly to help students get the info they\n    need about a missing student who will evaluate them." 
-		echo -e	"${PURPLE}               --- Maintained by isalama ---${NO_COLOR}"
-	fi
+        echo -e "${NO_COLOR} \n\n     Created mainly to help students get the info they\n    need about a missing student who will evaluate them."
+        echo -e "${PURPLE}               --- Maintained by isalama ---${NO_COLOR}"
+        init_usage
+    else
+        echo -e "${NO_COLOR}\n════════════════════════════════════════════════════════════\n"
+    fi
 
-	echo -e "${NO_COLOR}\n════════════════════════════════════════════════════════════\n"
 	sleep 0.1
 }
 
