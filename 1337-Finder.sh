@@ -60,14 +60,14 @@ init_program() {
 	echo -en "${GREEN}> Enter the user login: ${NO_COLOR}"
 	read -a usr
 	USER_LOGIN=${usr}
-	USER_FIRST_NAME=$(ldapsearch uid=$USER_LOGIN | grep givenName | awk '{print $2}')
-	USER_NAME=$(ldapsearch uid=$USER_LOGIN | grep cn: | sed 's/cn:/ /' | xargs)
+	USER_FIRST_NAME=$(ldapsearch -x uid=$USER_LOGIN | grep givenName | awk '{print $2}')
+	USER_NAME=$(ldapsearch -x uid=$USER_LOGIN | grep cn: | sed 's/cn:/ /' | xargs)
 
 	check_if_user_exists
 }
 
 check_if_user_exists() {
-	USER_INFO=$(ldapsearch uid=$USER_LOGIN | grep givenName)
+	USER_INFO=$(ldapsearch -x uid=$USER_LOGIN | grep givenName)
 	USER_INFO=$(awk '{print $1}' <<< $USER_INFO | tr -d '[:]')
 
 	if [ "$USER_INFO" = "givenName" ]; then
@@ -83,7 +83,7 @@ get_user_phone(){
 	clear
 	init_banner
 	
-	PHONE_NUMBER=$(ldapsearch uid=$USER_LOGIN | grep mobile: | awk '{print $2}')
+	PHONE_NUMBER=$(ldapsearch -x uid=$USER_LOGIN | grep mobile: | awk '{print $2}')
 
 	if [[ -z "$PHONE_NUMBER" ]]; then
 		echo -e "${RED}\n❌ We couldn't get the phone number of ${BGREEN}$USER_FIRST_NAME${RED} because they
@@ -109,13 +109,13 @@ get_user_freeze_status(){
 	init_banner
 	echo -e "${GREEN}The freeze status of $USER_LOGIN:${NO_COLOR}"
 
-	USER_INFO=$(ldapsearch uid=$USER_LOGIN | grep freezed)
+	USER_INFO=$(ldapsearch -x uid=$USER_LOGIN | grep freezed)
 
 	if [[ "${USER_INFO}" == *"freezed"* ]] ;then
 		echo -e "╔═ ✅ $USER_FIRST_NAME has frezeed his curcus."
 		echo -e "║"
 		echo -en "╚═ Reason of the freeze: "
-		FREEZE_REASON=$(ldapsearch uid=$USER_LOGIN | grep freezed | sed 's/close:/ /' | grep 'reason:' | sed 's/^.*: //')
+		FREEZE_REASON=$(ldapsearch -x uid=$USER_LOGIN | grep freezed | sed 's/close:/ /' | grep 'reason:' | sed 's/^.*: //')
 		echo -e $FREEZE_REASON
 	else
 		echo -e "❌ $USER_FIRST_NAME has not frezeed his curcus."
@@ -128,16 +128,16 @@ get_suspension_status(){
 	init_banner
 	echo -e "${GREEN}The suspension status of $USER_LOGIN:${NO_COLOR}"
 
-	USER_INFO=$(ldapsearch uid=$USER_LOGIN | grep "close:")
+	USER_INFO=$(ldapsearch -x uid=$USER_LOGIN | grep "close:")
 
 	if [[ "${USER_INFO}" == *"close:"* ]]; then
 		echo -e "╔═ ✅ $USER_FIRST_NAME was or is currently suspended."
 		echo -e "║"
 		echo -en "╚═ Reason(s):\n"
-		# SUSPENSION_REASON=$(ldapsearch uid=$USER_LOGIN | grep "close:" | sed 's/close:/ /')
+		# SUSPENSION_REASON=$(ldapsearch -x uid=$USER_LOGIN | grep "close:" | sed 's/close:/ /')
 		# echo -e $SUSPENSION_REASON
 
-		SUSPENSION_REASON=$(ldapsearch uid=$USER_LOGIN | grep "close:" | grep -v "freezed" | sed 's/close: //' | sed 's/^/ - /')
+		SUSPENSION_REASON=$(ldapsearch -x uid=$USER_LOGIN | grep "close:" | grep -v "freezed" | sed 's/close: //' | sed 's/^/ - /')
 echo -e "$SUSPENSION_REASON"
 
 
