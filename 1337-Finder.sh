@@ -18,7 +18,7 @@ USER_LOGIN="isalama"
 
 
 # get current usage
-init_usage(){
+get_usage(){
 	USAGE_COUNT=$(curl -s "https://visitor-badge.glitch.me/badge?page_id=1337-Finder" | sed -n 's/.*<text[^>]*>\([^<]*\)<.*/\1/p')
 	if [ -z "$USAGE_COUNT" ]; then
 		echo -e "${NO_COLOR}\n════════════════════════════════════════════════════════════\n"
@@ -44,7 +44,7 @@ init_banner() {
 	if [ "$IS_FIRST_TIME" = true ]; then
         echo -e "${NO_COLOR} \n\n     Created mainly to help students get the info they\n    need about a missing student who will evaluate them."
         echo -e "${PURPLE}               --- Maintained by isalama ---${NO_COLOR}"
-        init_usage
+        get_usage
     else
         echo -e "${NO_COLOR}\n════════════════════════════════════════════════════════════\n"
     fi
@@ -123,6 +123,30 @@ get_user_freeze_status(){
 	prompt_menu
 }
 
+get_suspension_status(){
+	clear
+	init_banner
+	echo -e "${GREEN}The suspension status of $USER_LOGIN:${NO_COLOR}"
+
+	USER_INFO=$(ldapsearch uid=$USER_LOGIN | grep "close:")
+
+	if [[ "${USER_INFO}" == *"close:"* ]]; then
+		echo -e "╔═ ✅ $USER_FIRST_NAME was or is currently suspended."
+		echo -e "║"
+		echo -en "╚═ Reason(s):\n"
+		# SUSPENSION_REASON=$(ldapsearch uid=$USER_LOGIN | grep "close:" | sed 's/close:/ /')
+		# echo -e $SUSPENSION_REASON
+
+		SUSPENSION_REASON=$(ldapsearch uid=$USER_LOGIN | grep "close:" | grep -v "freezed" | sed 's/close: //' | sed 's/^/ - /')
+echo -e "$SUSPENSION_REASON"
+
+
+	else
+		echo -e "❌ $USER_FIRST_NAME is not suspended."
+	fi
+	prompt_menu
+}
+
 
 prompt_user_menu(){
 	clear
@@ -133,8 +157,9 @@ prompt_user_menu(){
 2. Full name
 3. Check if the student is freezed
 4. Open student's intra profile
-5. Search for another student
-6. About the script"
+5. Check if the student is currently suspended
+6. Search for another student
+7. About the script"
 
 	echo -en "${GREEN}\n> Select: ${NO_COLOR}"
 	read -a var
@@ -149,8 +174,10 @@ prompt_user_menu(){
 	elif [ $chosen_info -eq 4 ]; then
 		open_intra_profile
 	elif [ $chosen_info -eq 5 ]; then
-		init_program
+		get_suspension_status
 	elif [ $chosen_info -eq 6 ]; then
+		init_program
+	elif [ $chosen_info -eq 7 ]; then
 		prompt_about_screen
 	else
 		prompt_user_menu
