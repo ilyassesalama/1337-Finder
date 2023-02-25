@@ -7,6 +7,7 @@ GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 PURPLE='\033[0;35m'
 BGREEN='\033[1;32m'
+YELLOW='\033[1;33m'
 
 # variables
 IS_FIRST_TIME=true
@@ -15,6 +16,14 @@ USER_EXISTS=false
 USER_NAME="Ilyasse Salama"
 USER_FIRST_NAME="Ilyasse"
 USER_LOGIN="isalama"
+
+USEFUL_LINKS=(
+    "https://iscsi-tools.1337.ma/"
+    "https://github-portal.42.fr/login"
+    "https://find-peers.codam.nl/"
+    "https://42evaluators.com/calculator"
+    "https://42evaluators.com/leaderboard/"
+)
 
 
 # get current usage
@@ -89,7 +98,7 @@ get_user_phone(){
 		echo -e "${RED}\n❌ We couldn't get the phone number of ${BGREEN}$USER_FIRST_NAME${RED} because they
 either didn't add it to their profile or an error has ocurred."
 	else
-		echo -en "${GREEN}The phone number of $USER_LOGIN: ${NO_COLOR}"
+		echo -en "The phone number of $USER_LOGIN: "
 		echo -e $PHONE_NUMBER
 	fi
 
@@ -99,7 +108,7 @@ either didn't add it to their profile or an error has ocurred."
 get_user_full_name(){
 	clear
 	init_banner
-	echo -en "${GREEN}The full name of $USER_LOGIN: ${NO_COLOR}"
+	echo -en "The full name of $USER_LOGIN: "
 	echo -e $USER_NAME
 	prompt_menu
 }
@@ -107,18 +116,18 @@ get_user_full_name(){
 get_user_freeze_status(){
 	clear
 	init_banner
-	echo -e "${GREEN}The freeze status of $USER_LOGIN:${NO_COLOR}"
+	echo -e "The freeze status of $USER_LOGIN:"
 
 	USER_INFO=$(ldapsearch uid=$USER_LOGIN | grep freezed)
 
 	if [[ "${USER_INFO}" == *"freezed"* ]] ;then
-		echo -e "╔═ ✅ $USER_FIRST_NAME has frezeed his curcus."
+		echo -e "╔═ ✅ ${GREEN}$USER_FIRST_NAME${NO_COLOR} has frezeed his curcus."
 		echo -e "║"
 		echo -en "╚═ Reason of the freeze: "
 		FREEZE_REASON=$(ldapsearch uid=$USER_LOGIN | grep freezed | sed 's/close:/ /' | grep 'reason:' | sed 's/^.*: //')
 		echo -e $FREEZE_REASON
 	else
-		echo -e "❌ $USER_FIRST_NAME has not frezeed his curcus."
+		echo -e "❌ ${RED}$USER_FIRST_NAME${NO_COLOR} has not frezeed his curcus."
 	fi
 	prompt_menu
 }
@@ -126,23 +135,21 @@ get_user_freeze_status(){
 get_suspension_status(){
 	clear
 	init_banner
-	echo -e "${GREEN}The suspension status of $USER_LOGIN:${NO_COLOR}"
+	echo -e "${YELLOW}The suspension status of $USER_LOGIN:${NO_COLOR}"
 
 	USER_INFO=$(ldapsearch uid=$USER_LOGIN | grep "close:")
 
 	if [[ "${USER_INFO}" == *"close:"* ]]; then
-		echo -e "╔═ ✅ $USER_FIRST_NAME was or is currently suspended."
+		echo -e "╔═ ✅ ${GREEN}$USER_FIRST_NAME${NO_COLOR} was or is currently suspended."
 		echo -e "║"
 		echo -en "╚═ Reason(s):\n"
-		# SUSPENSION_REASON=$(ldapsearch uid=$USER_LOGIN | grep "close:" | sed 's/close:/ /')
-		# echo -e $SUSPENSION_REASON
 
 		SUSPENSION_REASON=$(ldapsearch uid=$USER_LOGIN | grep "close:" | grep -v "freezed" | sed 's/close: //' | sed 's/^/ - /')
 echo -e "$SUSPENSION_REASON"
 
 
 	else
-		echo -e "❌ $USER_FIRST_NAME is not suspended."
+		echo -e "❌ ${RED}$USER_FIRST_NAME${NO_COLOR} is not suspended."
 	fi
 	prompt_menu
 }
@@ -153,37 +160,41 @@ prompt_user_menu(){
 	init_banner
 	echo -e "${GREEN}Choose the information you need:${NO_COLOR}"
 	echo -e "
+${YELLOW}User info:${NO_COLOR}
 1. Phone number
 2. Full name
 3. Check if the student is freezed
 4. Open student's intra profile
 5. Check if the student is currently suspended
+
+${YELLOW}Other:${NO_COLOR}
 6. Search for another student
-7. About the script"
+7. Useful links for you as a student
+8. About the script"
 
 	echo -en "${GREEN}\n> Select: ${NO_COLOR}"
 	read -a var
 	chosen_info=${var}
 
-	if [ $chosen_info -eq 1 ]; then
-		get_user_phone
-	elif [ $chosen_info -eq 2 ]; then
-		get_user_full_name
-	elif [ $chosen_info -eq 3 ]; then
-		get_user_freeze_status
-	elif [ $chosen_info -eq 4 ]; then
-		open_intra_profile
-	elif [ $chosen_info -eq 5 ]; then
-		get_suspension_status
-	elif [ $chosen_info -eq 6 ]; then
-		init_program
-	elif [ $chosen_info -eq 7 ]; then
-		prompt_about_screen
-	else
-		prompt_user_menu
-	fi
+	end_menu_options=(
+    	"get_user_phone"
+    	"get_user_full_name"
+    	"get_user_freeze_status"
+    	"open_intra_profile"
+    	"get_suspension_status"
+    	"init_program"
+    	"get_useful_links"
+    	"prompt_about_screen"
+	)
 
-	prompt_end_menu
+  chosen_option=${end_menu_options[$((chosen_info-1))]}
+    if [[ $chosen_option =~ ^(get|open|prompt)_.*$ && $(type -t "$chosen_option") = "function" ]]; then
+        "$chosen_option"
+    else
+        prompt_user_menu
+    fi
+    prompt_end_menu
+
 }
 
 prompt_user_not_found(){
@@ -196,14 +207,56 @@ prompt_user_not_found(){
 prompt_about_screen(){
 	clear
 	init_banner
-	echo -e "${GREEN}About:${NO_COLOR}\n"
+	echo -e "${YELLOW}About:${NO_COLOR}\n"
 	echo -e "The purpose of this script is to help students get the\ninformation they need about a missing student who will evaluate them."
 	echo -e "This script is open source and can be found on GitHub:\nhttps://github.com/ilyassesalama/1337-Finder"
 	prompt_end_menu
 }
 
+get_useful_links(){
+	clear
+	init_banner
+	echo -e "${GREEN}All available useful links:${NO_COLOR}"
+	echo -e "
+1. ISCSI Tools
+2. Github student pack
+3. Peers Finder
+4. Projects XP Calculator
+5. Students Leaderboard
+
+${YELLOW}What's next:${NO_COLOR}
+6. Go back
+7. Exit"
+
+	echo -en "${GREEN}\n> Select: ${NO_COLOR}"
+	read -r chosen_info
+
+	if [[ $chosen_info =~ ^[0-9]+$ ]]; then
+        chosen_info=$((chosen_info-1))
+        if [ $chosen_info -lt ${#USEFUL_LINKS[@]} ]; then
+            open "${USEFUL_LINKS[$chosen_info]}"
+        fi
+    fi
+
+	chosen_info=$((chosen_info+1))
+
+	if [ $chosen_info -eq 6 ]; then
+		if [ "$USER_EXISTS" = true ]; then
+			prompt_user_menu
+		else
+			init_program
+		fi
+
+	elif [ $chosen_info -eq 7 ]; then 
+		clear
+		exit
+	else
+		get_useful_links
+	fi
+}
+
 prompt_end_menu(){
-	echo -e "${GREEN}\nWhat's next?${NO_COLOR}"
+	echo -e "${YELLOW}\nWhat's next?${NO_COLOR}"
 	echo -e "1. Go back.\n2. Exit.\n"
 	echo -en "${GREEN}> Select: ${NO_COLOR}"
 
