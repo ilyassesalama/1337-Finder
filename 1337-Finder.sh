@@ -22,6 +22,7 @@ USEFUL_LINKS=(
     "https://iscsi-tools.1337.ma/"
     "https://github-portal.42.fr/login"
 	"https://overseer.1337.ma/"
+	"https://mail-students.1337.ma/SOGo/"
     "https://find-peers.codam.nl/"
     "https://42evaluators.com/calculator"
     "https://42evaluators.com/leaderboard/"
@@ -261,13 +262,14 @@ get_useful_links(){
 1. ISCSI Tools
 2. Github student pack
 3. Overseer
-4. Peers Finder
-5. Projects XP Calculator
-6. Students Leaderboard
+4. 1337 Mailbox
+5. Peers Finder
+6. Projects XP Calculator
+7. Students Leaderboard
 
 ${YELLOW}What's next:${NO_COLOR}
-7. Go back
-8. Exit"
+8. Go back
+9. Exit"
 
 	echo -en "${GREEN}\n> Select: ${NO_COLOR}"
 	read -r chosen_info
@@ -281,14 +283,14 @@ ${YELLOW}What's next:${NO_COLOR}
 
 	chosen_info=$((chosen_info+1))
 
-	if [ $chosen_info -eq 7 ]; then
+	if [ $chosen_info -eq 8 ]; then
 		if [ "$USER_EXISTS" = true ]; then
 			prompt_user_menu
 		else
 			init_program
 		fi
 
-	elif [ $chosen_info -eq 8 ]; then 
+	elif [ $chosen_info -eq 9 ]; then 
 		clear
 		exit
 	else
