@@ -8,6 +8,7 @@ BLUE='\033[0;34m'
 PURPLE='\033[0;35m'
 BGREEN='\033[1;32m'
 YELLOW='\033[1;33m'
+CYAN='\033[1;36m'
 
 # variables
 IS_FIRST_TIME=true
@@ -79,19 +80,13 @@ init_program() {
 
 set_new_alias(){
 	# Set the shell configuration file path based on the current shell
-	if [ "$SHELL" = "/bin/bash" ]; then
-    	shell_f="$HOME/.bashrc"
-	elif [ "$SHELL" = "/bin/zsh" ]; then
-    	shell_f="$HOME/.zshrc"
-	fi
+	shell_f=$(echo -n "$SHELL" | awk -F / '{print $3}')
+	shell_f="${HOME}/.${shell_f}rc"
 
 	# Add the alias to the shell configuration file if it doesn't exist
 	if ! grep -q "alias finder='bash <(curl -s https://raw.githubusercontent.com/ilyassesalama/1337-Finder/main/1337-Finder.sh)'" "$shell_f"; then
-    	echo "alias finder='bash <(curl -s https://raw.githubusercontent.com/ilyassesalama/1337-Finder/main/1337-Finder.sh)'" >> "$shell_f"
+    	echo -e "\n\nalias finder='bash <(curl -s https://raw.githubusercontent.com/ilyassesalama/1337-Finder/main/1337-Finder.sh)'" >> "$shell_f"
 	fi
-
-	# Source the shell configuration file to make the alias available
-	source "$shell_f"
 }
 
 check_if_user_exists() {
@@ -118,7 +113,7 @@ get_user_phone(){
 either didn't add it to their profile or an error has ocurred."
 	else
 		echo -en "The phone number of $USER_LOGIN: "
-		echo -e $PHONE_NUMBER
+		echo -e ${CYAN}$PHONE_NUMBER ${NO_COLOR}
 	fi
 
 	prompt_menu
@@ -128,7 +123,7 @@ get_user_full_name(){
 	clear
 	init_banner
 	echo -en "The full name of $USER_LOGIN: "
-	echo -e $USER_NAME
+	echo -e ${CYAN}$USER_NAME ${NO_COLOR}
 	prompt_menu
 }
 
@@ -154,7 +149,7 @@ get_user_freeze_status(){
 get_suspension_status(){
 	clear
 	init_banner
-	echo -e "${YELLOW}The suspension status of $USER_LOGIN:${NO_COLOR}"
+	echo -e "The suspension status of $USER_LOGIN:"
 
 	USER_INFO=$(ldapsearch uid=$USER_LOGIN | grep "close:")
 
@@ -183,13 +178,14 @@ ${YELLOW}User info:${NO_COLOR}
 1. Phone number
 2. Full name
 3. Check if the student is freezed
-4. Open student's intra profile
-5. Check if the student is currently suspended
+4. Check if the student is currently suspended
+5. 1337 Mail
+6. Open student's intra profile
 
 ${YELLOW}Other:${NO_COLOR}
-6. Search for another student
-7. Useful links for you as a student
-8. About the script"
+7. Search for another student
+8. Useful links for you as a student
+9. About the script"
 
 	echo -en "${GREEN}\n> Select: ${NO_COLOR}"
 	read -a var
@@ -199,8 +195,9 @@ ${YELLOW}Other:${NO_COLOR}
     	"get_user_phone"
     	"get_user_full_name"
     	"get_user_freeze_status"
-    	"open_intra_profile"
     	"get_suspension_status"
+		"get_user_mail"
+    	"open_intra_profile"
     	"init_program"
     	"get_useful_links"
     	"prompt_about_screen"
@@ -220,6 +217,23 @@ prompt_user_not_found(){
 	clear
 	init_banner
 	echo -e "${RED}❌ Student not found."
+	prompt_end_menu
+}
+
+get_user_mail(){
+	clear
+	init_banner
+	echo -en "The 1337 Mail of $USER_LOGIN: "
+
+	USER_MAIL=$(ldapsearch uid=$USER_LOGIN | grep "alias:" | awk '{print $2}')
+
+	if [[ -z "$USER_MAIL" ]]; then
+		echo -e "${RED}\n❌ We couldn't get the 1337 Mail of ${BGREEN}$USER_FIRST_NAME${RED} because they 
+either didn't add it to their profile or an error has ocurred."
+	else
+		echo -e ${CYAN}$USER_MAIL${NO_COLOR}
+	fi
+
 	prompt_end_menu
 }
 
