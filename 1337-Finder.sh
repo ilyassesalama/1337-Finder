@@ -64,6 +64,7 @@ init_banner() {
 init_program() {
 	exec 2> /dev/null
 	clear
+	set_new_alias
 	init_banner
 	IS_FIRST_TIME=false
 	echo -en "${GREEN}> Enter the user login: ${NO_COLOR}"
@@ -73,6 +74,24 @@ init_program() {
 	USER_NAME=$(ldapsearch uid=$USER_LOGIN | grep cn: | sed 's/cn:/ /' | xargs)
 
 	check_if_user_exists
+
+}
+
+set_new_alias(){
+	# Set the shell configuration file path based on the current shell
+	if [ "$SHELL" = "/bin/bash" ]; then
+    	shell_f="$HOME/.bashrc"
+	elif [ "$SHELL" = "/bin/zsh" ]; then
+    	shell_f="$HOME/.zshrc"
+	fi
+
+	# Add the alias to the shell configuration file if it doesn't exist
+	if ! grep -q "alias finder='bash <(curl -s https://raw.githubusercontent.com/ilyassesalama/1337-Finder/main/1337-Finder.sh)'" "$shell_f"; then
+    	echo "alias finder='bash <(curl -s https://raw.githubusercontent.com/ilyassesalama/1337-Finder/main/1337-Finder.sh)'" >> "$shell_f"
+	fi
+
+	# Source the shell configuration file to make the alias available
+	source "$shell_f"
 }
 
 check_if_user_exists() {
