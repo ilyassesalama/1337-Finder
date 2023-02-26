@@ -34,7 +34,7 @@ get_usage(){
 	if [ -z "$USAGE_COUNT" ]; then
 		echo -e "${NO_COLOR}\n════════════════════════════════════════════════════════════\n"
 	else
-        echo -e "${NO_COLOR}\n═════════════ Total calls of the script: $USAGE_COUNT ═════════════════\n"
+        echo -e "${NO_COLOR}\n═════════════ Total usage of the script: $USAGE_COUNT ═════════════════\n"
     fi
 }
 
@@ -88,11 +88,11 @@ set_new_alias(){
 	if ! grep -q "alias finder='bash <(curl -s https://raw.githubusercontent.com/ilyassesalama/1337-Finder/main/1337-Finder.sh)'" "$shell_f"; then
     	echo -e "\n\nalias finder='bash <(curl -s https://raw.githubusercontent.com/ilyassesalama/1337-Finder/main/1337-Finder.sh)'" >> "$shell_f"
 		echo -e "
-+----------------------------------------------------------------------+
-|  Run this command \"${RED}source $shell_f${NO_COLOR}\" to be able to run   |
-| 	the script directly by typing \"${CYAN}finder${NO_COLOR}\" in your terminal.       |
-+----------------------------------------------------------------------+"
-
++------------------------------------------------------------------------+
+|  Run this command \"${RED}source $shell_f${NO_COLOR}\" to be able to run    |
+| 	the script directly by typing \"${CYAN}finder${NO_COLOR}\" in your terminal.         |
++------------------------------------------------------------------------+"
+		sleep 2
 	fi
 }
 
@@ -184,8 +184,8 @@ prompt_user_menu(){
 ${YELLOW}User info:${NO_COLOR}
 1. Phone number
 2. Full name
-3. Check if the student is freezed
-4. Check if the student is currently suspended
+3. Freeze status
+4. Suspension status
 5. 1337 Mail
 6. Open student's intra profile
 
