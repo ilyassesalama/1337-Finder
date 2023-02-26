@@ -77,7 +77,6 @@ init_program() {
 	USER_NAME=$(ldapsearch uid=$USER_LOGIN | grep cn: | sed 's/cn:/ /' | xargs)
 
 	check_if_user_exists
-
 }
 
 set_new_alias(){
@@ -187,7 +186,7 @@ ${YELLOW}User info:${NO_COLOR}
 2. Full name
 3. Freeze status
 4. Suspension status
-5. 1337 Mail
+5. 1337 email
 6. Open student's intra profile
 
 ${YELLOW}Other:${NO_COLOR}
@@ -199,26 +198,29 @@ ${YELLOW}Other:${NO_COLOR}
 	read -a var
 	chosen_info=${var}
 
-	end_menu_options=(
-    	"get_user_phone"
-    	"get_user_full_name"
-    	"get_user_freeze_status"
-    	"get_suspension_status"
-		"get_user_mail"
-    	"open_intra_profile"
-    	"init_program"
-    	"get_useful_links"
-    	"prompt_about_screen"
-	)
+	if [ $chosen_info -eq 1 ]; then
+		get_user_phone
+	elif [ $chosen_info -eq 2 ]; then
+		get_user_full_name
+	elif [ $chosen_info -eq 3 ]; then
+		get_user_freeze_status
+	elif [ $chosen_info -eq 4 ]; then
+		get_suspension_status
+	elif [ $chosen_info -eq 5 ]; then
+		get_user_mail
+	elif [ $chosen_info -eq 6 ]; then
+		open_intra_profile
+	elif [ $chosen_info -eq 7 ]; then
+		init_program
+	elif [ $chosen_info -eq 8 ]; then
+		get_useful_links
+	elif [ $chosen_info -eq 9 ]; then
+		prompt_about_screen
+	else
+		prompt_user_menu
+	fi
 
-  chosen_option=${end_menu_options[$((chosen_info-1))]}
-    if [[ $chosen_option =~ ^(get|open|prompt)_.*$ && $(type -t "$chosen_option") = "function" ]]; then
-        "$chosen_option"
-    else
-        prompt_user_menu
-    fi
     prompt_end_menu
-
 }
 
 prompt_user_not_found(){
