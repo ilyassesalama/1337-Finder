@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -i
 
 # colors
 RED='\033[0;31m'
@@ -87,6 +87,12 @@ set_new_alias(){
 	# Add the alias to the shell configuration file if it doesn't exist
 	if ! grep -q "alias finder='bash <(curl -s https://raw.githubusercontent.com/ilyassesalama/1337-Finder/main/1337-Finder.sh)'" "$shell_f"; then
     	echo -e "\n\nalias finder='bash <(curl -s https://raw.githubusercontent.com/ilyassesalama/1337-Finder/main/1337-Finder.sh)'" >> "$shell_f"
+		echo -e "
++----------------------------------------------------------------------+
+|  Run this command \"${RED}source $shell_f${NO_COLOR}\" to be able to run   |
+| 	the script directly by typing \"${CYAN}finder${NO_COLOR}\" in your terminal.       |
++----------------------------------------------------------------------+"
+
 	fi
 }
 
