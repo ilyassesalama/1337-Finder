@@ -31,12 +31,14 @@ USEFUL_LINKS=(
 
 # get current usage
 get_usage(){
-	USAGE_COUNT=$(curl -s "https://visitor-badge.glitch.me/badge?page_id=1337-Finder" | sed -n 's/.*<text[^>]*>\([^<]*\)<.*/\1/p')
-	if [ -z "$USAGE_COUNT" ]; then
-		echo -e "${NO_COLOR}\n════════════════════════════════════════════════════════════\n"
-	else
-        echo -e "${NO_COLOR}\n═════════════ Total usage of the script: $USAGE_COUNT ═════════════════\n"
-    fi
+	if [ "$IS_FIRST_TIME" = true ]; then
+		USAGE_COUNT=$(curl -s "https://visitor-badge.glitch.me/badge?page_id=1337-Finder" | sed -n 's/.*<text[^>]*>\([^<]*\)<.*/\1/p')
+		if [ -z "$USAGE_COUNT" ]; then
+			echo -e "${NO_COLOR}\n════════════════════════════════════════════════════════════\n"
+			return
+    	fi
+	fi
+    echo -e "${NO_COLOR}\n═════════════ Total usage of the script: $USAGE_COUNT ═════════════════\n"
 }
 
 # show banner
@@ -53,30 +55,32 @@ init_banner() {
 	
 	sleep 0.1
 
-	if [ "$IS_FIRST_TIME" = true ]; then
-        echo -e "${NO_COLOR} \n\n     Created mainly to help students get the info they\n    need about a missing student who will evaluate them."
-        echo -e "${PURPLE}               --- Maintained by isalama ---${NO_COLOR}"
-        get_usage
-    else
-        echo -e "${NO_COLOR}\n════════════════════════════════════════════════════════════\n"
-    fi
+    echo -e "${NO_COLOR} \n\n     Created mainly to help students get the info they\n    need about a missing student who will evaluate them."
+    echo -e "${PURPLE}               --- Maintained by isalama ---${NO_COLOR}"
+    get_usage
 
 	sleep 0.1
 }
 
 init_program() {
-	exec 2> /dev/null
-	clear
-	set_new_alias
-	init_banner
-	IS_FIRST_TIME=false
-	echo -en "${GREEN}> Enter the user login: ${NO_COLOR}"
-	read -a usr
-	USER_LOGIN=${usr}
-	USER_FIRST_NAME=$(ldapsearch uid=$USER_LOGIN | grep givenName | awk '{print $2}')
-	USER_NAME=$(ldapsearch uid=$USER_LOGIN | grep cn: | sed 's/cn:/ /' | xargs)
+    exec 2> /dev/null
+    clear
+    set_new_alias
+    init_banner
+    IS_FIRST_TIME=false
 
-	check_if_user_exists
+    if [ -z "$1" ]; then
+        echo -en "${GREEN}> Enter the user login: ${NO_COLOR}"
+        read -a usr
+        USER_LOGIN=${usr}
+    else
+        USER_LOGIN=$1
+    fi
+
+    USER_FIRST_NAME=$(ldapsearch uid=$USER_LOGIN | grep givenName | awk '{print $2}')
+    USER_NAME=$(ldapsearch uid=$USER_LOGIN | grep cn: | sed 's/cn:/ /' | xargs)
+
+    check_if_user_exists
 }
 
 set_new_alias(){
@@ -89,8 +93,8 @@ set_new_alias(){
     	echo -e "\n\nalias finder='bash <(curl -s https://raw.githubusercontent.com/ilyassesalama/1337-Finder/main/1337-Finder.sh)'" >> "$shell_f"
 		echo -e "
 +------------------------------------------------------------------------+
-|  Run this command \"${RED}source $shell_f${NO_COLOR}\" to be able to run    |
-| 	the script directly by typing \"${CYAN}finder${NO_COLOR}\" in your terminal.         |
+|  Run this command \"${RED}source $shell_f${NO_COLOR}\" to be able to run     |
+|   the script directly by typing \"${CYAN}finder${YELLOW} LOGIN${NO_COLOR}\" in your terminal.       |
 +------------------------------------------------------------------------+"
 		sleep 2
 	fi
@@ -328,4 +332,4 @@ open_intra_profile(){
 	prompt_menu
 }
 
-init_program
+init_program "$@"
