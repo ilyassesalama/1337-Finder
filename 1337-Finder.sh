@@ -11,6 +11,7 @@ YELLOW='\033[1;33m'
 CYAN='\033[1;36m'
 
 # variables
+LDAPER="ldapsearch"
 IS_FIRST_TIME=true
 USAGE_COUNT=""
 USER_EXISTS=false
@@ -28,19 +29,6 @@ USEFUL_LINKS=(
     "https://42evaluators.com/leaderboard/"
 )
 
-
-# get current usage
-get_usage(){
-	if [ "$IS_FIRST_TIME" = true ]; then
-		USAGE_COUNT=$(curl -s "https://visitor-badge.glitch.me/badge?page_id=1337-Finder" | sed -n 's/.*<text[^>]*>\([^<]*\)<.*/\1/p')
-		if [ -z "$USAGE_COUNT" ]; then
-			echo -e "${NO_COLOR}\n════════════════════════════════════════════════════════════\n"
-			return
-    	fi
-	fi
-    echo -e "${NO_COLOR}\n═════════════ Total usage of the script: $USAGE_COUNT ═════════════════\n"
-}
-
 # show banner
 init_banner() {
 	echo -e "${RED}
@@ -57,6 +45,7 @@ init_banner() {
 
     echo -e "${NO_COLOR} \n\n     Created mainly to help students get the info they\n    need about a missing student who will evaluate them."
     echo -e "${PURPLE}               --- Maintained by isalama ---${NO_COLOR}"
+	echo -e "${NO_COLOR}\n════════════════════════════════════════════════════════════\n"
     get_usage
 
 	sleep 0.1
@@ -66,21 +55,47 @@ init_program() {
     exec 2> /dev/null
     clear
     set_new_alias
-    init_banner
-    IS_FIRST_TIME=false
 
-    if [ -z "$1" ]; then
-        echo -en "${GREEN}> Enter the user login: ${NO_COLOR}"
-        read -a usr
-        USER_LOGIN=${usr}
-    else
-        USER_LOGIN=$1
-    fi
+	if is_ldap_available; then
+		init_banner
+		printf '\033[8;40;100t'
+		if [ -z "$1" ]; then
+        	echo -en "${GREEN}> Enter the user login: ${NO_COLOR}"
+        	read -a usr
+        	USER_LOGIN=${usr}
+    	else
+        	USER_LOGIN=$1
+    	fi
 
-    USER_FIRST_NAME=$(ldapsearch uid=$USER_LOGIN | grep givenName | awk '{print $2}')
-    USER_NAME=$(ldapsearch uid=$USER_LOGIN | grep cn: | sed 's/cn:/ /' | xargs)
+    USER_FIRST_NAME=$(eval $LDAPER uid=$USER_LOGIN | grep givenName | awk '{print $2}')
+    USER_NAME=$(eval $LDAPER uid=$USER_LOGIN | grep cn: | sed 's/cn:/ /' | xargs)
 
     check_if_user_exists
+	else
+		echo -e "${RED}
++----------------------------------------------------------+
+|   	   It seems like LDAP is broken in the  	   |
+|        school currently, please try again later          |
++----------------------------------------------------------+${NO_COLOR}"
+		exit 1
+	fi 
+}
+
+is_ldap_available() {
+	local ldapsearch_output
+    ldapsearch_output=$(ldapsearch -LLL -b "dc=1337,dc=ma" -s base "(objectclass=*)")
+    if [[ $? -eq 0 && "$ldapsearch_output" =~ "1337" ]]; then
+        return 0  # LDAP is working
+    else
+        # Try again with simple bind
+        ldapsearch_output=$(ldapsearch -x -LLL -b "dc=1337,dc=ma" -s base "(objectclass=*)")
+        if [[ $? -eq 0 && "$ldapsearch_output" =~ "1337" ]]; then
+			LDAPER="ldapsearch -x"
+            return 0  # LDAP is working
+        else
+            return 1  # LDAP is not working
+        fi
+    fi
 }
 
 set_new_alias(){
@@ -101,7 +116,7 @@ set_new_alias(){
 }
 
 check_if_user_exists() {
-	USER_INFO=$(ldapsearch uid=$USER_LOGIN | grep givenName)
+	USER_INFO=$(eval $LDAPER uid=$USER_LOGIN | grep givenName)
 	USER_INFO=$(awk '{print $1}' <<< $USER_INFO | tr -d '[:]')
 
 	if [ "$USER_INFO" = "givenName" ]; then
@@ -117,7 +132,7 @@ get_user_phone(){
 	clear
 	init_banner
 
-	PHONE_NUMBER=$(ldapsearch uid=$USER_LOGIN | grep mobile: | awk '{print $2}')
+	PHONE_NUMBER=$(eval $LDAPER uid=$USER_LOGIN | grep mobile: | awk '{print $2}')
 
 	if [[ -z "$PHONE_NUMBER" ]]; then
 		echo -e "${RED}\n❌ We couldn't get the phone number of ${BGREEN}$USER_FIRST_NAME${RED} because they
@@ -143,13 +158,13 @@ get_user_freeze_status(){
 	init_banner
 	echo -e "The freeze status of $USER_LOGIN:"
 
-	USER_INFO=$(ldapsearch uid=$USER_LOGIN | grep freezed)
+	USER_INFO=$(eval $LDAPER uid=$USER_LOGIN | grep freezed)
 
 	if [[ "${USER_INFO}" == *"freezed"* ]] ;then
 		echo -e "╔═ ✅ ${GREEN}$USER_FIRST_NAME${NO_COLOR} has frezeed his curcus."
 		echo -e "║"
 		echo -en "╚═ Reason of the freeze: "
-		FREEZE_REASON=$(ldapsearch uid=$USER_LOGIN | grep freezed | sed 's/close:/ /' | grep 'reason:' | sed 's/^.*: //')
+		FREEZE_REASON=$(eval $LDAPER uid=$USER_LOGIN | grep freezed | sed 's/close:/ /' | grep 'reason:' | sed 's/^.*: //')
 		echo -e $FREEZE_REASON
 	else
 		echo -e "❌ ${RED}$USER_FIRST_NAME${NO_COLOR} has not frezeed his curcus."
@@ -162,17 +177,14 @@ get_suspension_status(){
 	init_banner
 	echo -e "The suspension status of $USER_LOGIN:"
 
-	USER_INFO=$(ldapsearch uid=$USER_LOGIN | grep "close:")
+	USER_INFO=$(eval $LDAPER uid=$USER_LOGIN | grep "close:")
 
 	if [[ "${USER_INFO}" == *"close:"* ]]; then
+		SUSPENSION_REASON=$(eval $LDAPER uid=$USER_LOGIN | grep "close:" | sed 's/close: //' | sed 's/^/ - /')
 		echo -e "╔═ ✅ ${GREEN}$USER_FIRST_NAME${NO_COLOR} was or is currently suspended."
 		echo -e "║"
 		echo -en "╚═ Reason(s):\n"
-
-		SUSPENSION_REASON=$(ldapsearch uid=$USER_LOGIN | grep "close:" | grep -v "freezed" | sed 's/close: //' | sed 's/^/ - /')
-echo -e "$SUSPENSION_REASON"
-
-
+		echo -e "$SUSPENSION_REASON"
 	else
 		echo -e "❌ ${RED}$USER_FIRST_NAME${NO_COLOR} is not suspended."
 	fi
@@ -239,7 +251,7 @@ get_user_mail(){
 	init_banner
 	echo -en "The 1337 Mail of $USER_LOGIN: "
 
-	USER_MAIL=$(ldapsearch uid=$USER_LOGIN | grep "alias:" | awk '{print $2}')
+	USER_MAIL=$(eval $LDAPER uid=$USER_LOGIN | grep "alias:" | awk '{print $2}')
 
 	if [[ -z "$USER_MAIL" ]]; then
 		echo -e "${RED}\n❌ We couldn't get the 1337 Mail of ${BGREEN}$USER_FIRST_NAME${RED} because they 
