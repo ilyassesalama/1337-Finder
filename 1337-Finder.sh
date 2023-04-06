@@ -195,7 +195,7 @@ get_suspension_status(){
 prompt_user_menu(){
 	clear
 	init_banner
-	echo -e "${GREEN}Choose the information you need:${NO_COLOR}"
+	echo -e "${GREEN}Choose the information you need about ${CYAN}$USER_NAME:${NO_COLOR}"
 	echo -e "
 ${YELLOW}User info:${NO_COLOR}
 1. Phone number
