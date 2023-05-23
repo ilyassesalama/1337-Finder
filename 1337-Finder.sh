@@ -19,6 +19,7 @@ USER_EXISTS=false
 USER_NAME="Ilyasse Salama"
 USER_FIRST_NAME="Ilyasse"
 USER_LOGIN="isalama"
+IS_NOTIFYING=false
 
 USEFUL_LINKS=(
     "https://iscsi-tools.1337.ma/"
@@ -64,6 +65,7 @@ set_new_alias(){
 |  Run this command \"${RED}source $shell_f${NO_COLOR}\" to be able to run     |
 |   the script directly by typing \"${CYAN}finder${YELLOW} LOGIN${NO_COLOR}\" in your terminal.       |
 +------------------------------------------------------------------------+"
+	IS_NOTIFYING=true
 		sleep 2
 	fi
 }
@@ -114,7 +116,10 @@ init_program() {
 
 init_startup_menu() {
     CURRENT_PAGE="STARTUP"
-    clear
+	if(!IS_NOTIFYING) then
+		IS_NOTIFYING=true
+		clear
+	fi
 	init_banner
 	echo -e "
 ${YELLOW}1337 Finder Features:${NO_COLOR}
