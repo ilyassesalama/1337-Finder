@@ -95,14 +95,14 @@ init_program() {
 
 	if is_ldap_available; then
 		printf '\033[8;40;100t'
-		if [ -z "$1" ]; then
+		if [ -z "$USER_LOGIN" ]; then
             init_startup_menu
     	else
-        	USER_LOGIN=$1
+    		USER_FIRST_NAME=$(eval $LDAPER uid=$USER_LOGIN | grep givenName | awk '{print $2}')
+    		USER_NAME=$(eval $LDAPER uid=$USER_LOGIN | grep cn: | sed 's/cn:/ /' | xargs)
+			check_if_user_exists
     	fi
 
-    USER_FIRST_NAME=$(eval $LDAPER uid=$USER_LOGIN | grep givenName | awk '{print $2}')
-    USER_NAME=$(eval $LDAPER uid=$USER_LOGIN | grep cn: | sed 's/cn:/ /' | xargs)
 
 	else
 		echo -e "${RED}
@@ -459,9 +459,14 @@ prompt_user_not_found(){
 	clear
 	init_banner
 	echo -e "${RED}❌ Student not found."
+	USER_LOGIN=""
 	prompt_end_menu
 }
 
 # ------- MENUS SECTION END --------
+
+if [ ! -z "$1" ]; then
+    USER_LOGIN=$1
+fi
 
 init_program
