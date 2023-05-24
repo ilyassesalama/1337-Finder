@@ -23,7 +23,6 @@ USER_EXISTS=false
 USER_NAME="Ilyasse Salama"
 USER_FIRST_NAME="Ilyasse"
 USER_LOGIN="isalama"
-IS_NOTIFYING=false
 
 USEFUL_LINKS=(
     "https://iscsi-tools.1337.ma/"
@@ -55,7 +54,9 @@ init_banner() {
 
     echo -e "${NO_COLOR} \n\n     Created mainly to help students get the info they\n    need about a missing student who will evaluate them."
     echo -e "${PURPLE}              --- Maintained by isalama ---${NO_COLOR}"
+	set_new_alias
 	echo -e "${NO_COLOR}\n════════════════════════════════════════════════════════════\n"
+
 
 	sleep 0.1
 }
@@ -69,12 +70,11 @@ set_new_alias(){
 	if ! grep -q "alias finder='bash <(curl -s https://raw.githubusercontent.com/ilyassesalama/1337-Finder/main/1337-Finder.sh)'" "$shell_f"; then
     	echo -e "\n\nalias finder='bash <(curl -s https://raw.githubusercontent.com/ilyassesalama/1337-Finder/main/1337-Finder.sh)'" >> "$shell_f"
 		echo -e "
-+------------------------------------------------------------------------+
-|  Run this command \"${RED}source $shell_f${NO_COLOR}\" to be able to run     |
-|   the script directly by typing \"${CYAN}finder${YELLOW} LOGIN${NO_COLOR}\" in your terminal.       |
-+------------------------------------------------------------------------+"
-	IS_NOTIFYING=true
-		sleep 2
++--------------------------------------------------------+
+|     Run this command \"${RED}source $shell_f${NO_COLOR}\"    |
+|     to be able to run the script directly by typing    |
+|            \"${CYAN}finder${YELLOW} LOGIN${NO_COLOR}\" in your terminal.            |
++--------------------------------------------------------+"
 	fi
 }
 
@@ -98,7 +98,6 @@ is_ldap_available() {
 init_program() {
     exec 2> /dev/null
     clearTerm
-    set_new_alias # set `finder` alias
     CURRENT_PAGE="INIT"
 
 	if is_ldap_available; then
@@ -110,8 +109,6 @@ init_program() {
     		USER_NAME=$(eval $LDAPER uid=$USER_LOGIN | grep cn: | sed 's/cn:/ /' | xargs)
 			check_if_user_exists
     	fi
-
-
 	else
 		echo -e "${RED}
 +----------------------------------------------------------+
@@ -119,15 +116,12 @@ init_program() {
 |        school currently, please try again later          |
 +----------------------------------------------------------+${NO_COLOR}"
 		exit 1
-	fi 
+	fi
 }
 
 init_startup_menu() {
     CURRENT_PAGE="STARTUP"
-	if(!IS_NOTIFYING) then
-		IS_NOTIFYING=false
-		clearTerm
-	fi
+	clearTerm
 	init_banner
 	echo -e "
 ${YELLOW}1337 Finder Features:${NO_COLOR}
