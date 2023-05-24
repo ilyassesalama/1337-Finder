@@ -125,7 +125,7 @@ init_program() {
 init_startup_menu() {
     CURRENT_PAGE="STARTUP"
 	if(!IS_NOTIFYING) then
-		IS_NOTIFYING=true
+		IS_NOTIFYING=false
 		clearTerm
 	fi
 	init_banner
@@ -159,10 +159,10 @@ ${YELLOW}1337 Finder Features:${NO_COLOR}
 
 special_user(){
 	if [ "$USER_LOGIN" == "isalama" ]; then
-		echo "$GIGA_CHAD"
+		echo "$ART_ISALAMA"
 		return 0
 	elif [ "$USER_LOGIN" == "tajjid" ]; then
-		echo "$ROCK_EYEBROW"
+		echo "$ART_TAJJID"
 		return 0
 	else
 		return 1
@@ -258,7 +258,7 @@ either didn't add it to their profile or an error has ocurred."
 		echo -e ${CYAN}$PHONE_NUMBER ${NO_COLOR}
 	fi
 
-	prompt_menu
+	prompt_end_menu
 }
 
 get_user_full_name(){
@@ -267,7 +267,7 @@ get_user_full_name(){
 	init_banner
 	echo -en "The full name of $USER_LOGIN: "
 	echo -e ${CYAN}$USER_NAME ${NO_COLOR}
-	prompt_menu
+	prompt_end_menu
 }
 
 get_user_freeze_status(){
@@ -287,7 +287,7 @@ get_user_freeze_status(){
 	else
 		echo -e "❌ ${RED}$USER_FIRST_NAME${NO_COLOR} has not frezeed his curcus."
 	fi
-	prompt_menu
+	prompt_end_menu
 }
 
 get_suspension_status(){
@@ -307,7 +307,7 @@ get_suspension_status(){
 	else
 		echo -e "❌ ${RED}$USER_FIRST_NAME${NO_COLOR} is not suspended."
 	fi
-	prompt_menu
+	prompt_end_menu
 }
 
 get_user_mail(){
@@ -336,7 +336,7 @@ open_intra_profile(){
 	sleep 0.3
 	open "https://profile.intra.42.fr/users/$USER_LOGIN"
 	echo -e "${GREEN}✓ Done${NO_COLOR}"
-	prompt_menu
+	prompt_end_menu
 }
 # -------- USER INFO SECTION END --------
 
@@ -472,7 +472,7 @@ prompt_end_menu(){
 		if [ "$USER_EXISTS" = true ]; then
 			init_student_info_menu
 		else
-			init_program
+			init_startup_menu
 		fi
 	fi
 }
@@ -490,7 +490,7 @@ prompt_user_not_found(){
 
 # -------- ASCII SECTION START --------
 init_ascii_art(){
-	ROCK_EYEBROW="
+	ART_TAJJID="
 ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠿⠛⠛⠛⠛⠿⣿⣿⣿⣿⣿⣿⣿⣿
 ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠛⠉⠁⠀⠀⠀⠀⠀⠀⠀⠉⠻⣿⣿⣿⣿⣿⣿
 ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⢿⣿⣿⣿⣿
@@ -507,7 +507,7 @@ init_ascii_art(){
 ⣿⣿⣿⣿⣿⣿⣿⣿⣷⣄⠀⠀⠀⠀⠀⠀⠀⠀⣰⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
 ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣤⣀⣀⠀⣀⣠⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
 "
-	GIGA_CHAD="⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡯⠛⠃⠀⠀⠀⠀⠀⠀⠈⠉⠙⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+	ART_ISALAMA="⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡯⠛⠃⠀⠀⠀⠀⠀⠀⠈⠉⠙⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
 ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠝⠁⠀⠀⠀⠀⠀⠀⠀⠀⠐⠀⠀⠀⠀⠀⠙⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
 ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠟⢠⣤⡄⣶⢶⣲⣾⣾⣿⣷⣦⡄⠀⠀⠀⠀⠀⠀⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
 ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⣰⡟⡿⢃⢻⣼⣛⣿⣿⣿⣿⣿⢯⣇⠀⠀⠀⠀⠀⠈⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
