@@ -23,7 +23,6 @@ USER_EXISTS=false
 USER_NAME="Ilyasse Salama"
 USER_FIRST_NAME="Ilyasse"
 USER_LOGIN="isalama"
-IS_NOTIFYING=false
 
 USEFUL_LINKS=(
     "https://iscsi-tools.1337.ma/"
@@ -55,7 +54,9 @@ init_banner() {
 
     echo -e "${NO_COLOR} \n\n     Created mainly to help students get the info they\n    need about a missing student who will evaluate them."
     echo -e "${PURPLE}              --- Maintained by isalama ---${NO_COLOR}"
+	set_new_alias
 	echo -e "${NO_COLOR}\n════════════════════════════════════════════════════════════\n"
+
 
 	sleep 0.1
 }
@@ -69,12 +70,11 @@ set_new_alias(){
 	if ! grep -q "alias finder='bash <(curl -s https://raw.githubusercontent.com/ilyassesalama/1337-Finder/main/1337-Finder.sh)'" "$shell_f"; then
     	echo -e "\n\nalias finder='bash <(curl -s https://raw.githubusercontent.com/ilyassesalama/1337-Finder/main/1337-Finder.sh)'" >> "$shell_f"
 		echo -e "
-+------------------------------------------------------------------------+
-|  Run this command \"${RED}source $shell_f${NO_COLOR}\" to be able to run     |
-|   the script directly by typing \"${CYAN}finder${YELLOW} LOGIN${NO_COLOR}\" in your terminal.       |
-+------------------------------------------------------------------------+"
-	IS_NOTIFYING=true
-		sleep 2
++--------------------------------------------------------+
+|     Run this command \"${RED}source $shell_f${NO_COLOR}\"    |
+|     to be able to run the script directly by typing    |
+|            \"${CYAN}finder${YELLOW} LOGIN${NO_COLOR}\" in your terminal.            |
++--------------------------------------------------------+"
 	fi
 }
 
@@ -98,7 +98,6 @@ is_ldap_available() {
 init_program() {
     exec 2> /dev/null
     clearTerm
-    set_new_alias # set `finder` alias
     CURRENT_PAGE="INIT"
 
 	if is_ldap_available; then
@@ -110,8 +109,6 @@ init_program() {
     		USER_NAME=$(eval $LDAPER uid=$USER_LOGIN | grep cn: | sed 's/cn:/ /' | xargs)
 			check_if_user_exists
     	fi
-
-
 	else
 		echo -e "${RED}
 +----------------------------------------------------------+
@@ -119,15 +116,12 @@ init_program() {
 |        school currently, please try again later          |
 +----------------------------------------------------------+${NO_COLOR}"
 		exit 1
-	fi 
+	fi
 }
 
 init_startup_menu() {
     CURRENT_PAGE="STARTUP"
-	if(!IS_NOTIFYING) then
-		IS_NOTIFYING=true
-		clearTerm
-	fi
+	clearTerm
 	init_banner
 	echo -e "
 ${YELLOW}1337 Finder Features:${NO_COLOR}
@@ -159,10 +153,10 @@ ${YELLOW}1337 Finder Features:${NO_COLOR}
 
 special_user(){
 	if [ "$USER_LOGIN" == "isalama" ]; then
-		echo "$GIGA_CHAD"
+		echo "$ART_ISALAMA"
 		return 0
 	elif [ "$USER_LOGIN" == "tajjid" ]; then
-		echo "$ROCK_EYEBROW"
+		echo "$ART_TAJJID"
 		return 0
 	else
 		return 1
@@ -258,7 +252,7 @@ either didn't add it to their profile or an error has ocurred."
 		echo -e ${CYAN}$PHONE_NUMBER ${NO_COLOR}
 	fi
 
-	prompt_menu
+	prompt_end_menu
 }
 
 get_user_full_name(){
@@ -267,7 +261,7 @@ get_user_full_name(){
 	init_banner
 	echo -en "The full name of $USER_LOGIN: "
 	echo -e ${CYAN}$USER_NAME ${NO_COLOR}
-	prompt_menu
+	prompt_end_menu
 }
 
 get_user_freeze_status(){
@@ -287,7 +281,7 @@ get_user_freeze_status(){
 	else
 		echo -e "❌ ${RED}$USER_FIRST_NAME${NO_COLOR} has not frezeed his curcus."
 	fi
-	prompt_menu
+	prompt_end_menu
 }
 
 get_suspension_status(){
@@ -307,7 +301,7 @@ get_suspension_status(){
 	else
 		echo -e "❌ ${RED}$USER_FIRST_NAME${NO_COLOR} is not suspended."
 	fi
-	prompt_menu
+	prompt_end_menu
 }
 
 get_user_mail(){
@@ -336,7 +330,7 @@ open_intra_profile(){
 	sleep 0.3
 	open "https://profile.intra.42.fr/users/$USER_LOGIN"
 	echo -e "${GREEN}✓ Done${NO_COLOR}"
-	prompt_menu
+	prompt_end_menu
 }
 # -------- USER INFO SECTION END --------
 
@@ -472,7 +466,7 @@ prompt_end_menu(){
 		if [ "$USER_EXISTS" = true ]; then
 			init_student_info_menu
 		else
-			init_program
+			init_startup_menu
 		fi
 	fi
 }
@@ -490,7 +484,7 @@ prompt_user_not_found(){
 
 # -------- ASCII SECTION START --------
 init_ascii_art(){
-	ROCK_EYEBROW="
+	ART_TAJJID="
 ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠿⠛⠛⠛⠛⠿⣿⣿⣿⣿⣿⣿⣿⣿
 ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠛⠉⠁⠀⠀⠀⠀⠀⠀⠀⠉⠻⣿⣿⣿⣿⣿⣿
 ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⢿⣿⣿⣿⣿
@@ -522,7 +516,7 @@ init_ascii_art(){
 ⠀⠀⠯⣀⣈⣀⣈⣐⣲⣄⣄⣤⣴⣆⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣈⣛⡧
 "
 
-	GIGA_CHAD="⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡯⠛⠃⠀⠀⠀⠀⠀⠀⠈⠉⠙⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+	ART_ISALAMA="⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡯⠛⠃⠀⠀⠀⠀⠀⠀⠈⠉⠙⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
 ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠝⠁⠀⠀⠀⠀⠀⠀⠀⠀⠐⠀⠀⠀⠀⠀⠙⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
 ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠟⢠⣤⡄⣶⢶⣲⣾⣾⣿⣷⣦⡄⠀⠀⠀⠀⠀⠀⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
 ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⣰⡟⡿⢃⢻⣼⣛⣿⣿⣿⣿⣿⢯⣇⠀⠀⠀⠀⠀⠈⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
