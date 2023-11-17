@@ -383,28 +383,39 @@ get_all_suspended_users() {
 }
 
 get_all_freezed_users(){
-	CURRENT_PAGE="ALL_FREEZE_STATUS"
-	clearTerm
-	init_banner
-	echo -e "🔎 ${GREEN}Getting all freezed students...\n${NO_COLOR}"
+    CURRENT_PAGE="ALL_SUSPENSION_STATUS"
+    clearTerm
+    init_banner
+    echo -e "🔎 ${GREEN}Getting all freezed students...\n${NO_COLOR}"
+    echo -e "${YELLOW}Freezed students:\n${NO_COLOR}"
 
-	ldapsearch_cmd="ldapsearch -x -LLL -b 'dc=1337,dc=ma' '(&(objectClass=inetOrgPerson)(close=*freezed*))' cn uid close"1
-	output=$(eval $ldapsearch_cmd)
+    ldap_command="ldapsearch -x -LLL -b 'dc=1337,dc=ma' '(&(objectClass=inetOrgPerson)(close=*))' cn uid close"
 
-	while IFS= read -r line; do
-    	if [[ $line =~ ^cn:\ (.*) ]]; then
-    	    cn="${BASH_REMATCH[1]}"
-    	elif [[ $line =~ ^uid:\ (.*) ]]; then
-    	    uid="${BASH_REMATCH[1]}"
-    	elif [[ $line =~ ^close:\ (.*) ]]; then
-    	    close="${BASH_REMATCH[1]}"
-			close=$(echo $close | sed 's/close:/ /' | grep 'reason:' | sed 's/^.*: //')
-    	    echo -e "${RED}login:${NO_COLOR} $uid"
-    	    echo -e "${RED}name:${NO_COLOR} $cn"
-    	    echo -e "${RED}reason:${NO_COLOR} $close"
-    	    echo -e "---------------------------------------"
-    	fi
-	done <<< "$output"
+    current_login=""
+    current_name=""
+    reason=""
+
+    eval $ldap_command | while IFS= read -r line
+    do
+        if [[ $line == uid:* ]]; then
+            current_login=$(echo "$line" | cut -d ' ' -f2)
+        fi
+
+        if [[ $line == cn:* ]]; then
+            current_name=$(echo "$line" | cut -d ' ' -f2-)
+        fi
+
+        if [[ $line == close:* ]]; then
+            reason=$(echo "$line" | cut -d ' ' -f2-)
+            if [[ $reason == *"freezed"* ]]; then
+                reason=$(echo "$reason" | sed 's/Cursus freezed by [^,]*, because of reason: //')
+                echo -e "${PURPLE}login:${NO_COLOR} $current_login"
+                echo -e "${PURPLE}name:${NO_COLOR} $current_name"
+                echo -e "${PURPLE}reason:${NO_COLOR} $reason"
+                echo "---------------------------------------"
+            fi
+        fi
+    done
 }
 
 
