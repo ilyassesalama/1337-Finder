@@ -341,30 +341,45 @@ get_all_suspended_users() {
     clearTerm
     init_banner
     echo -e "🔎 ${GREEN}Getting all suspended students...\n${NO_COLOR}"
+	echo -e "${YELLOW}Suspended students:\n${NO_COLOR}"
 
-	echo -e "Suspended students:\n\n" > SUSPENDED_STUDENTS.txt
+    ldap_command="ldapsearch -x -LLL -b 'dc=1337,dc=ma' '(&(objectClass=inetOrgPerson)(close=*))' cn uid close"
 
-    ldapsearch_cmd="ldapsearch -x -LLL -b 'dc=1337,dc=ma' '(&(objectClass=inetOrgPerson)(close=*))' cn uid close"
-    output=$(eval $ldapsearch_cmd)
+	current_login=""
+	current_name=""
+	reason=""
 
-    while IFS= read -r line; do
-        if [[ $line =~ ^cn:\ (.*) ]]; then
-            cn="${BASH_REMATCH[1]}"
-        elif [[ $line =~ ^uid:\ (.*) ]]; then
-            uid="${BASH_REMATCH[1]}" 
-        elif [[ $line =~ ^close:\ (.*) ]]; then
-            close="${BASH_REMATCH[1]}"
-            close=$(echo $close | sed 's/close:/ /' | grep -v 'reason:' | sed 's/^.*: //')
-            if [[ "$close" != *"freezed"* ]]; then
-                echo -e "login: $uid" >> SUSPENDED_STUDENTS.txt
-                echo -e "name: $cn" >> SUSPENDED_STUDENTS.txt
-                echo -e "reason: $close" >> SUSPENDED_STUDENTS.txt
-                echo -e "---------------------------------------" >> SUSPENDED_STUDENTS.txt
-            fi
-        fi
-    done <<< "$output" | grep -v "freezed"
+	eval $ldap_command | while IFS= read -r line
+	do
+	    if [[ $line == uid:* ]]; then
+	        current_login=$(echo "$line" | cut -d ' ' -f2)
+	    fi
 
-	echo -e "${CYAN}The list is too long, and will affect the terminal window.\nI have saved all suspended students info in your current directory.${NO_COLOR}"
+	    if [[ $line == cn:* ]]; then
+	        current_name=$(echo "$line" | cut -d ' ' -f2-)
+	    fi
+
+	    if [[ $line == close:* ]]; then
+	        reason=$(echo "$line" | cut -d ' ' -f2-)
+			# filter out unwanted reasons since they're old or not relevant
+	        if [[
+				  # remove only lines that strictly have these words
+				  $reason != "bocal" &&
+				  $reason != "Bocal" &&
+				  $reason != "BOCAL" &&
+				  $reason != "not admitted" &&
+				  # remove only lines that contain these words
+				  $reason != *"freezed"* &&
+				  $reason != *"Non admitted"* &&
+				  $reason != *"Black Hole ended."*
+				]]; then
+	            echo -e "${PURPLE}login:${NO_COLOR} $current_login"
+	            echo -e "${PURPLE}name:${NO_COLOR} $current_name"
+	            echo -e "${PURPLE}reason:${NO_COLOR} $reason"
+	            echo "---------------------------------------"
+	        fi
+	    fi
+	done
 }
 
 get_all_freezed_users(){
