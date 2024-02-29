@@ -242,15 +242,18 @@ get_user_phone(){
 	clearTerm
 	init_banner
 
-	PHONE_NUMBER=$(eval $LDAPER uid=$USER_LOGIN | grep mobile: | awk '{print $2}')
+	echo -e "${RED}Important message:${NO_COLOR}"
+	echo -e "The school removed access to students phone numbers.\nI didn't backup students data in case something like this happens.\nSo, this feature is not available anymore. Sorry for the inconvenience."
 
-	if [[ -z "$PHONE_NUMBER" ]]; then
-		echo -e "${RED}\n❌ We couldn't get the phone number of ${BGREEN}$USER_FIRST_NAME${RED} because they
-either didn't add it to their profile or an error has ocurred."
-	else
-		echo -en "The phone number of $USER_NAME: "
-		echo -e ${CYAN}$PHONE_NUMBER ${NO_COLOR}
-	fi
+	# PHONE_NUMBER=$(eval $LDAPER uid=$USER_LOGIN | grep mobile: | awk '{print $2}')
+
+# 	if [[ -z "$PHONE_NUMBER" ]]; then
+# 		echo -e "${RED}\n❌ We couldn't get the phone number of ${BGREEN}$USER_FIRST_NAME${RED} because they
+# either didn't add it to their profile or an error has ocurred."
+# 	else
+# 		echo -en "The phone number of $USER_NAME: "
+# 		echo -e ${CYAN}$PHONE_NUMBER ${NO_COLOR}
+# 	fi
 
 	prompt_end_menu
 }
