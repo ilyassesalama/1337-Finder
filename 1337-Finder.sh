@@ -366,15 +366,18 @@ get_all_suspended_users() {
 	        reason=$(echo "$line" | cut -d ' ' -f2-)
 			# filter out unwanted reasons since they're old or not relevant
 	        if [[
-				  # remove only lines that strictly have these words
+				  # remove reasons that strictly have only these words
 				  $reason != "bocal" &&
 				  $reason != "Bocal" &&
 				  $reason != "BOCAL" &&
 				  $reason != "not admitted" &&
-				  # remove only lines that contain these words
+				  # remove reasons that contain these words
 				  $reason != *"freezed"* &&
 				  $reason != *"Non admitted"* &&
-				  $reason != *"Black Hole ended."*
+				  $reason != *"Black Hole ended."* &&
+				  $reason != *"missing a milestone"* &&
+				  $reason != *"join discord yet"* &&
+				  $reason != *"joined Discord server"*
 				]]; then
 	            echo -e "${PURPLE}login:${NO_COLOR} $current_login"
 	            echo -e "${PURPLE}name:${NO_COLOR} $current_name"
